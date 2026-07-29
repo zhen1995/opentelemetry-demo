@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: demo
+
+server:
+  servlet:
+    context-path: /demo
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,httpexchanges,httptrace-new
+      base-path: /actuator
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: always
