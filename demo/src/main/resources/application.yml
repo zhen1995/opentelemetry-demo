@@ -1,3 +1,10 @@
+app:
+  name: ${APP_NAME:demo}
+
+demo:
+  target-one-host: ${TARGET_ONE_HOST:app-b}
+  target-two-host: ${TARGET_TWO_HOST:app-c}
+
 spring:
   application:
     name: demo
