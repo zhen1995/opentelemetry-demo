@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/test")
-public class DemoController {
+public class TraceAndLogDemoController {
 
-    private static final Logger log = LoggerFactory.getLogger(DemoController.class);
+    private static final Logger log = LoggerFactory.getLogger(TraceAndLogDemoController.class);
     @Autowired
     private CustomMetricsService customMetricsService;
 
