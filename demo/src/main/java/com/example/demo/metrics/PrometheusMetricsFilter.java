@@ -1,6 +1,9 @@
 package com.example.demo.metrics;
 
+import com.example.demo.config.OpenTelemetrySpanContextSupplier;
 import io.micrometer.core.instrument.Counter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
@@ -24,6 +27,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class PrometheusMetricsFilter implements Filter {
+
+    private static final Logger log = LoggerFactory.getLogger(PrometheusMetricsFilter.class);
 
     private final MeterRegistry meterRegistry;
     private final String appName;
@@ -63,6 +68,16 @@ public class PrometheusMetricsFilter implements Filter {
             return;
         }
 
+        // 在请求开始时保存当前请求的 traceId/spanId：
+        // 优先从 traceparent header 解析，避免 OTel API 与 agent 版本不兼容；
+        // 没有 traceparent 时回退到 Span.current()。
+        String traceparent = httpRequest.getHeader("traceparent");
+        OpenTelemetrySpanContextSupplier.setFromTraceParent(traceparent);
+        log.info("traceparent={}, resolved traceId={}, spanId={}",
+                traceparent,
+                OpenTelemetrySpanContextSupplier.getCurrentTraceId(),
+                OpenTelemetrySpanContextSupplier.getCurrentSpanId());
+
         AtomicInteger inProgress = getRequestsInProgress(method, path);
         inProgress.incrementAndGet();
         getRequestCounter(method, path).increment();
@@ -90,6 +105,7 @@ public class PrometheusMetricsFilter implements Filter {
             getRequestTimer(method, path).record(Duration.ofNanos(elapsedNanos));
             getResponseCounter(method, path, String.valueOf(statusCode)).increment();
             inProgress.decrementAndGet();
+            OpenTelemetrySpanContextSupplier.clear();
         }
     }
 
@@ -155,6 +171,7 @@ public class PrometheusMetricsFilter implements Filter {
                 .tag("method", method)
                 .tag("path", path)
                 .tag("app_name", appName)
+                .publishPercentileHistogram()
                 .register(meterRegistry));
     }
 }

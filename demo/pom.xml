@@ -37,6 +37,14 @@
             <artifactId>micrometer-registry-prometheus</artifactId>
         </dependency>
 
+        <!-- OpenTelemetry API：用于从当前线程获取 traceId/spanId，作为 Prometheus exemplar -->
+        <!-- 版本需与 opentelemetry-javaagent 版本对应，v2.20.1 对应 SDK 1.54.1 -->
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-api</artifactId>
+            <version>1.54.1</version>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>

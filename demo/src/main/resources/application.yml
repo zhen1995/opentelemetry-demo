@@ -1,5 +1,5 @@
 app:
-  name: ${APP_NAME:demo}
+  name: ${APP_NAME:opentelemetry-demo}
 
 demo:
   target-one-host: ${TARGET_ONE_HOST:app-b}
